@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Проверка наличия аргумента
+if [ "$#" -ne 1 ]; then
+    echo "Использование: $0 <путь до файла>"
+    exit 1
+fi
+
+# Получаем путь до файла
+log_file=$1
+
+# Проверка существования файла
+if [ ! -f "$log_file" ]; then
+    echo "Файл не найден: $log_file"
+    exit 1
+fi
+
+# Общее количество записей в файле
+total_records=$(wc -l < "$log_file")
+
+# Количество уникальных файлов
+unique_files=$(awk '{print $1}' "$log_file" | sort | uniq | wc -l)
+
+# Количество изменений hash файла
+hash_changes=$(awk '{print $1, $4}' "$log_file" | uniq | awk '{print $1}' | sort | uniq -c | awk '$1 > 1 {count += $1 - 1} END {print count}')
+
+# Вывод результатов
+echo "Общее количество записей: $total_records"
+echo "Количество уникальных файлов: $unique_files"
+echo "Количество изменений hash файла: ${hash_changes:-0}"
